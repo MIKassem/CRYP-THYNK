@@ -38,20 +38,22 @@ export function Level2({
   onQuizAnswer,
 }: Level2Props) {
   const [draggedItem, setDraggedItem] = useState<DragItem | null>(null);
+  const [splitAnimated, setSplitAnimated] = useState(false);
   const [dropZones, setDropZones] = useState<DropZone[]>([
-    { id: 'zone1', label: 'Initial Permutation', filled: false },
-    { id: 'zone2', label: 'Split L0/R0', filled: false },
-    { id: 'zone3', label: '16 Feistel Rounds', filled: false },
-    { id: 'zone4', label: 'Swap Halves', filled: false },
-    { id: 'zone5', label: 'Final Permutation', filled: false },
+    { id: 'zone1', label: 'Step 1', filled: false },
+    { id: 'zone2', label: 'Step 2', filled: false },
+    { id: 'zone3', label: 'Step 3', filled: false },
+    { id: 'zone4', label: 'Step 4', filled: false },
+    { id: 'zone5', label: 'Step 5', filled: false },
   ]);
 
+  // Shuffled drag items to make puzzle harder
   const dragItems: DragItem[] = [
-    { id: 'item1', label: 'Initial Permutation' },
-    { id: 'item2', label: 'Split into L and R' },
     { id: 'item3', label: '16-Round Feistel Network' },
-    { id: 'item4', label: 'Swap Halves' },
     { id: 'item5', label: 'Final Permutation' },
+    { id: 'item2', label: 'Split into L and R' },
+    { id: 'item1', label: 'Initial Permutation' },
+    { id: 'item4', label: 'Swap Halves' },
   ];
 
   const correctMapping: Record<string, string> = {
@@ -114,20 +116,29 @@ export function Level2({
 
               {/* Bit Grid Visualization */}
               <div className="mb-6">
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">64-bit input block:</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">{permutationAnimated ? 'After permutation (bits reordered):' : 'Before permutation (original order):'}</p>
                 <div className="grid grid-cols-8 gap-1 mb-4">
-                  {Array.from({ length: 64 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-6 h-6 flex items-center justify-center text-xs font-semibold rounded transition-all duration-500 ${
-                        permutationAnimated
-                          ? 'bg-indigo-500 text-white'
-                          : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
-                      }`}
-                    >
-                      {i % 10}
-                    </div>
-                  ))}
+                  {Array.from({ length: 64 }).map((_, i) => {
+                    // Simple permutation: swap positions to visualize reordering
+                    const originalPos = i;
+                    const permutedPos = permutationAnimated ? ((i * 7) % 64) : i;
+                    const displayValue = permutationAnimated ? permutedPos % 10 : originalPos % 10;
+                    return (
+                      <div
+                        key={i}
+                        className={`w-6 h-6 flex items-center justify-center text-xs font-semibold rounded transition-all duration-700 ${
+                          permutationAnimated
+                            ? 'bg-indigo-500 text-white transform scale-110'
+                            : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                        }`}
+                        style={{
+                          transitionDelay: permutationAnimated ? `${i * 8}ms` : '0ms'
+                        }}
+                      >
+                        {displayValue}
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <Button
@@ -161,15 +172,37 @@ export function Level2({
                 After the initial permutation, the 64-bit block is split into two 32-bit halves: <strong>Left (L₀)</strong> and <strong>Right (R₀)</strong>.
               </p>
 
+              {/* Combined Block Before Split */}
+              {!splitAnimated && (
+                <div className="mb-4">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Combined 64-bit block:</p>
+                  <div className="grid grid-cols-8 gap-1 mb-4">
+                    {Array.from({ length: 64 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-6 h-6 flex items-center justify-center text-xs font-semibold rounded bg-slate-300 dark:bg-slate-600 text-slate-800 dark:text-slate-200"
+                      >
+                        {i % 10}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Visual Split */}
-              <div className="flex gap-4 mb-6">
+              <div className={`flex gap-4 mb-6 transition-all duration-700 ${
+                splitAnimated ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+              }`}>
                 <div className="flex-1">
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Left Half (L₀) - 32 bits:</p>
                   <div className="grid grid-cols-8 gap-1">
                     {Array.from({ length: 32 }).map((_, i) => (
                       <div
                         key={i}
-                        className="w-6 h-6 flex items-center justify-center text-xs font-semibold rounded bg-indigo-200 dark:bg-indigo-700 text-indigo-900 dark:text-indigo-100"
+                        className="w-6 h-6 flex items-center justify-center text-xs font-semibold rounded bg-indigo-200 dark:bg-indigo-700 text-indigo-900 dark:text-indigo-100 transition-all duration-500"
+                        style={{
+                          transitionDelay: splitAnimated ? `${i * 10}ms` : '0ms'
+                        }}
                       >
                         {i % 10}
                       </div>
@@ -182,7 +215,10 @@ export function Level2({
                     {Array.from({ length: 32 }).map((_, i) => (
                       <div
                         key={i}
-                        className="w-6 h-6 flex items-center justify-center text-xs font-semibold rounded bg-sky-200 dark:bg-sky-700 text-sky-900 dark:text-sky-100"
+                        className="w-6 h-6 flex items-center justify-center text-xs font-semibold rounded bg-sky-200 dark:bg-sky-700 text-sky-900 dark:text-sky-100 transition-all duration-500"
+                        style={{
+                          transitionDelay: splitAnimated ? `${(i + 32) * 10}ms` : '0ms'
+                        }}
                       >
                         {i % 10}
                       </div>
@@ -190,6 +226,15 @@ export function Level2({
                   </div>
                 </div>
               </div>
+
+              {/* Split Button */}
+              <Button
+                onClick={() => setSplitAnimated(!splitAnimated)}
+                variant="outline"
+                className="w-full mb-4"
+              >
+                {splitAnimated ? 'Reset' : 'Click to Split'}
+              </Button>
 
               <div className="bg-sky-50 dark:bg-sky-900/20 rounded p-3 border border-sky-200 dark:border-sky-800">
                 <p className="text-xs text-sky-900 dark:text-sky-100">
@@ -213,23 +258,9 @@ export function Level2({
                 DES applies <strong>16 rounds</strong> of the Feistel function. Each round transforms the data using a round key derived from the main key.
               </p>
 
-              {/* Round Slider */}
-              <div className="mb-6">
-                <label className="text-sm font-semibold text-slate-900 dark:text-white mb-2 block">
-                  Round: {selectedRound}
-                </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="16"
-                  value={selectedRound}
-                  onChange={(e) => onRoundChange(parseInt(e.target.value))}
-                  className="w-full"
-                />
-              </div>
-
               {/* Feistel Formula */}
               <div className="bg-violet-50 dark:bg-violet-900/20 rounded p-4 border border-violet-200 dark:border-violet-800 mb-6">
+                <p className="text-sm font-semibold text-violet-900 dark:text-violet-100 mb-3">The Feistel Formula:</p>
                 <p className="text-xs text-violet-900 dark:text-violet-100 font-mono">
                   L<sub>i</sub> = R<sub>i-1</sub>
                   <br />
@@ -239,7 +270,7 @@ export function Level2({
 
               <div className="bg-slate-100 dark:bg-slate-700 rounded p-4">
                 <p className="text-xs text-slate-700 dark:text-slate-300">
-                  <strong>Round {selectedRound}:</strong> The right half is processed through the F-function with the round key, then XORed with the left half. The halves are then swapped for the next round.
+                  In each round, the right half goes through the F-function with a round key, then gets XORed with the left half. The halves are then swapped for the next round. This process repeats 16 times, creating strong encryption.
                 </p>
               </div>
             </div>
@@ -463,15 +494,12 @@ export function Level2({
                     >
                       {zone.filled && zone.filledWith ? (
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle2 size={18} className="text-emerald-500" />
-                            <span className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
-                              {zone.filledWith}
-                            </span>
-                          </div>
+                          <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                            {zone.filledWith}
+                          </span>
                           <button
                             onClick={() => handleRemoveFromZone(zone.id)}
-                            className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline"
+                            className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
                           >
                             Remove
                           </button>

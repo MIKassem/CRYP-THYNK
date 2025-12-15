@@ -140,7 +140,7 @@ export function Level1({
               onClick={onDecryptionTrigger}
               className="w-full py-3 px-4 rounded-lg bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white font-semibold transition-all transform hover:scale-105"
             >
-              Click to Decrypt
+              Try Decrypt
             </button>
 
             {/* Explanation */}

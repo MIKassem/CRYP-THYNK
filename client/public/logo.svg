@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 280" width="513" height="280">
+  <!-- Background -->
+  <rect width="513" height="280" fill="#0a2540"/>
+  
+  <!-- Brain -->
+  <path d="M 180 140 Q 180 90, 220 70 Q 240 60, 260 70 Q 280 60, 300 70 Q 340 90, 340 140 Q 340 160, 330 170 Q 340 180, 340 200 Q 340 220, 320 230 Q 310 240, 290 235 Q 280 240, 270 235 Q 260 240, 250 235 Q 230 240, 220 230 Q 200 220, 200 200 Q 200 180, 210 170 Q 200 160, 200 140 Q 200 120, 210 110 Q 220 100, 230 105 Q 240 100, 250 105 Q 260 100, 270 105 Q 280 100, 290 105 Q 300 100, 310 110 Q 320 120, 320 140" fill="#2d6a4f" stroke="#1b4332" stroke-width="2"/>
+  
+  <!-- Lock -->
+  <rect x="240" y="110" width="40" height="50" rx="5" fill="#c9d6df" stroke="#52616b" stroke-width="2"/>
+  <circle cx="260" cy="95" r="15" fill="none" stroke="#c9d6df" stroke-width="6"/>
+  <circle cx="260" cy="135" r="5" fill="#52616b"/>
+  <rect x="258" y="135" width="4" height="15" fill="#52616b"/>
+  
+  <!-- Text -->
+  <text x="256" y="260" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#c9d6df" text-anchor="middle" letter-spacing="2">CRYP-THYNK</text>
+  <text x="256" y="275" font-family="Arial, sans-serif" font-size="16" fill="#8b9a9f" text-anchor="middle" letter-spacing="4">UNLIMITED</text>
+</svg>

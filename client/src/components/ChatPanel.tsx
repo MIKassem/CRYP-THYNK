@@ -29,6 +29,11 @@ export function ChatPanel({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Scroll to bottom on initial mount
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+  }, []);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
@@ -43,15 +48,18 @@ export function ChatPanel({
     // Simulate assistant response with demo logic
     setTimeout(() => {
       let response = '';
+      const lowerMessage = userMessage.toLowerCase();
 
-      if (userMessage.toLowerCase().includes('des')) {
-        response = 'Great! DES (Data Encryption Standard) is a symmetric encryption algorithm. Would you like to start the interactive DES lesson to learn how it works step by step?';
-      } else if (userMessage.toLowerCase().includes('hello') || userMessage.toLowerCase().includes('hi')) {
-        response = 'Hello! I\'m here to help you learn cryptography. You can ask me about encryption algorithms, or we can start an interactive lesson. What interests you?';
-      } else if (userMessage.toLowerCase().includes('help')) {
-        response = 'I can help you with:\n• Interactive lessons on encryption algorithms\n• Explanations of cryptographic concepts\n• Step-by-step walkthroughs of algorithms\n\nWould you like to explore the DES lesson?';
+      if (lowerMessage.includes('des') && !lowerMessage.includes('aes')) {
+        response = 'Great! DES (Data Encryption Standard) is a classic symmetric encryption algorithm. Would you like to start the interactive DES lesson to learn how it works step by step?';
+      } else if (lowerMessage.includes('aes')) {
+        response = 'Excellent choice! AES (Advanced Encryption Standard) is the modern encryption standard. Would you like to start the interactive AES lesson to see how it works?';
+      } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+        response = 'Hello! I\'m here to help you learn cryptography. You can explore interactive lessons on DES or AES. Which one interests you?';
+      } else if (lowerMessage.includes('help')) {
+        response = 'I can help you with:\n• Interactive DES lesson (classic encryption)\n• Interactive AES lesson (modern encryption)\n• Step-by-step algorithm walkthroughs\n\nType "DES" or "AES" to begin!';
       } else {
-        response = 'That\'s an interesting question! For now, I\'m focused on teaching cryptography through interactive lessons. Would you like to explore the DES lesson, or ask me something specific about encryption?';
+        response = 'That\'s an interesting question! I offer interactive lessons on encryption algorithms. Type "DES" for the classic Data Encryption Standard, or "AES" for the modern Advanced Encryption Standard.';
       }
 
       onSimulateResponse(response);
@@ -69,12 +77,16 @@ export function ChatPanel({
   return (
     <div className="flex flex-col h-full w-full bg-gradient-to-b from-white to-slate-50 dark:from-slate-950 dark:to-slate-900">
       {/* Messages Area - Flex 1 to take remaining space */}
-      <div ref={containerRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-4 w-full">
-        {messages.map((message) => (
-          <MessageBubble key={message.id} message={message} />
-        ))}
-        {children}
-        <div ref={messagesEndRef} />
+      <div ref={containerRef} className="flex-1 overflow-y-auto px-4 w-full">
+        <div className="min-h-full flex flex-col justify-end py-6">
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <MessageBubble key={message.id} message={message} />
+            ))}
+            {children}
+            <div ref={messagesEndRef} />
+          </div>
+        </div>
       </div>
 
       {/* Input Area - Fixed at bottom */}
@@ -83,7 +95,16 @@ export function ChatPanel({
           <textarea
             ref={inputRef}
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              // Auto-grow textarea up to 3 lines
+              const textarea = e.target;
+              textarea.style.height = 'auto';
+              const lineHeight = 24; // approximate line height
+              const maxHeight = lineHeight * 3;
+              const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+              textarea.style.height = newHeight + 'px';
+            }}
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything about cryptography... (Shift+Enter for new line)"
             className={cn(
@@ -91,7 +112,7 @@ export function ChatPanel({
               'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100',
               'placeholder-slate-500 dark:placeholder-slate-400',
               'focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400',
-              'resize-none overflow-hidden',
+              'resize-none overflow-y-auto',
               'transition-all duration-200'
             )}
             rows={1}
