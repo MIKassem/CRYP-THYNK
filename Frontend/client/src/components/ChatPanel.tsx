@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChatMessage, useChat } from '@/hooks/useChat';
+import { ChatMessage } from '@/hooks/useChat';
 import { MessageBubble } from './MessageBubble';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
@@ -7,15 +7,13 @@ import { cn } from '@/lib/utils';
 
 interface ChatPanelProps {
   messages: ChatMessage[];
-  onAddMessage: (content: string) => void;
-  onSimulateResponse: (response: string) => void;
+  onSendMessage: (content: string) => Promise<void>;
   children?: React.ReactNode;
 }
 
 export function ChatPanel({
   messages,
-  onAddMessage,
-  onSimulateResponse,
+  onSendMessage,
   children,
 }: ChatPanelProps) {
   const [inputValue, setInputValue] = useState('');
@@ -42,29 +40,13 @@ export function ChatPanel({
     setInputValue('');
     setIsLoading(true);
 
-    // Add user message
-    onAddMessage(userMessage);
-
-    // Simulate assistant response with demo logic
-    setTimeout(() => {
-      let response = '';
-      const lowerMessage = userMessage.toLowerCase();
-
-      if (lowerMessage.includes('des') && !lowerMessage.includes('aes')) {
-        response = 'Great! DES (Data Encryption Standard) is a classic symmetric encryption algorithm. Would you like to start the interactive DES lesson to learn how it works step by step?';
-      } else if (lowerMessage.includes('aes')) {
-        response = 'Excellent choice! AES (Advanced Encryption Standard) is the modern encryption standard. Would you like to start the interactive AES lesson to see how it works?';
-      } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-        response = 'Hello! I\'m here to help you learn cryptography. You can explore interactive lessons on DES or AES. Which one interests you?';
-      } else if (lowerMessage.includes('help')) {
-        response = 'I can help you with:\n• Interactive DES lesson (classic encryption)\n• Interactive AES lesson (modern encryption)\n• Step-by-step algorithm walkthroughs\n\nType "DES" or "AES" to begin!';
-      } else {
-        response = 'That\'s an interesting question! I offer interactive lessons on encryption algorithms. Type "DES" for the classic Data Encryption Standard, or "AES" for the modern Advanced Encryption Standard.';
-      }
-
-      onSimulateResponse(response);
+    try {
+      await onSendMessage(userMessage);
+    } catch (error) {
+      console.error(error);
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

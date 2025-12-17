@@ -48,7 +48,7 @@ export default function Home() {
   const { theme, toggleTheme } = useTheme();
   
   // Get chat state and functions from custom hook
-  const { messages, addMessage, simulateAssistantResponse } = useChat();
+  const { messages, addMessage, simulateAssistantResponse, sendAgentMessage } = useChat();
   
   // Track which lesson is currently active (null = no lesson shown)
   const [activLesson, setActiveLesson] = useState<LessonType>(null);
@@ -101,7 +101,7 @@ export default function Home() {
    * 
    * @param content - The user's message text
    */
-  const handleAddMessage = (content: string) => {
+  const handleAddMessage = async (content: string) => {
     // Add user message to chat history
     addMessage(content, 'user');
 
@@ -175,10 +175,13 @@ export default function Home() {
     // Triggers: "rsa" + ("performance", "slow", "speed", or "bulk")
     else if (lowerContent.includes('rsa') && (lowerContent.includes('performance') || lowerContent.includes('slow') || lowerContent.includes('speed') || lowerContent.includes('bulk'))) {
       setTimeout(() => {
-        setActiveLesson('rsa-performance');
-        simulateAssistantResponse('I\'ve opened the RSA Performance lesson! Let\'s explore why RSA is slow and unsuitable for bulk data encryption.');
-      }, 800);
+      setActiveLesson('rsa-performance');
+      simulateAssistantResponse('I\'ve opened the RSA Performance lesson! Let\'s explore why RSA is slow and unsuitable for bulk data encryption.');
+    }, 800);
     }
+
+    // Always send to backend agent for full answer
+    await sendAgentMessage(content, { addUserMessage: false });
   };
 
   /**
@@ -230,8 +233,7 @@ export default function Home() {
       <main className="flex-1 max-w-4xl w-full mx-auto flex flex-col">
         <ChatPanel
           messages={messages}
-          onAddMessage={handleAddMessage}
-          onSimulateResponse={simulateAssistantResponse}
+          onSendMessage={handleAddMessage}
         >
           {/* Conditionally render lessons based on activLesson state */}
           {/* Only one lesson can be active at a time */}

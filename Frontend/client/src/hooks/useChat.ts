@@ -9,6 +9,7 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
+import { callAgent } from '@/lib/api';
 
 /**
  * Chat Message Interface
@@ -130,5 +131,23 @@ export function useChat() {
     addTypingIndicator,
     removeTypingIndicator,
     simulateAssistantResponse,
+    sendAgentMessage: useCallback(async (content: string, opts?: { addUserMessage?: boolean; allowSearch?: boolean }) => {
+      const { addUserMessage = true, allowSearch = true } = opts || {};
+
+      if (addUserMessage) {
+        addMessage(content, 'user');
+      }
+
+      const typingId = addTypingIndicator();
+      try {
+        const res = await callAgent(content, allowSearch);
+        removeTypingIndicator(typingId);
+        addMessage(res.answer || 'No response from agent.', 'assistant');
+      } catch (error: any) {
+        removeTypingIndicator(typingId);
+        const message = error?.message || 'Agent request failed.';
+        addMessage(`Error: ${message}`, 'assistant');
+      }
+    }, [addMessage, addTypingIndicator, removeTypingIndicator]),
   };
 }
