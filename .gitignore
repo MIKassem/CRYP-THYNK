@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environments
+.venv/
+venv/
+env/
+.env
+.env.local
+
+# Django
+db.sqlite3
+
+# RAG caches
+rag/cache.*
+
+# OS
+.DS_Store
+
+# Node
+node_modules/
+dist/

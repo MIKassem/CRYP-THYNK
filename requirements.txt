@@ -1,0 +1,4 @@
+Django>=4.2,<4.3
+requests>=2.31.0
+PyPDF2>=3.0.0
+llama-parse>=0.4.3
